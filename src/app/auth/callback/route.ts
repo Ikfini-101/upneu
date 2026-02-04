@@ -2,22 +2,21 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
-    const { searchParams, origin } = new URL(request.url);
+    const { searchParams } = new URL(request.url);
     const code = searchParams.get("code");
-    // if "next" is in param, use it as the redirect URL
     const next = searchParams.get("next") ?? "/feed";
+
+    // Use proper base URL (localhost or from env)
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
     if (code) {
         const supabase = await createClient();
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (!error) {
-            // Check if user has mask? If not, maybe /wizard
-            // For now, redirect to feed or wizard check logic could be here
-            // But keeping it simple:
-            return NextResponse.redirect(`${origin}${next}`);
+            return NextResponse.redirect(`${baseUrl}${next}`);
         }
     }
 
     // return the user to an error page with instructions
-    return NextResponse.redirect(`${origin}/login?error=auth-code-error`);
+    return NextResponse.redirect(`${baseUrl}/login?error=auth-code-error`);
 }

@@ -117,7 +117,7 @@ export default function LoginPage() {
                             onClick={async () => {
                                 setLoading(true);
                                 try {
-                                    const res = await signInWithProvider('google');
+                                    const res = await signInWithProvider('google', window.location.origin);
                                     if (res?.error) {
                                         alert("Erreur Google: " + res.error);
                                     } else if (res?.url) {

@@ -9,22 +9,24 @@ import { VenetianMask, Heart, MessageCircle, MoreHorizontal, Send, Mail } from "
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import type { Confession } from "@/app/feed/actions"
-import { toggleLike, addComment } from "@/app/interactions/actions"
-import { toast } from "sonner" // Assuming sonner is installed
+import { toggleLike, addComment, toggleCommentVote } from "@/app/interactions/actions"
+import { toast } from "sonner"
+import { ThumbsUp, ThumbsDown, Reply } from "lucide-react"
 
 interface ConfessionCardProps {
     confession: Confession;
     index: number;
+    currentUserId: string;
 }
 
-export function ConfessionCard({ confession, index }: ConfessionCardProps) {
+export function ConfessionCard({ confession, index, currentUserId }: ConfessionCardProps) {
     const [liked, setLiked] = useState(false)
     const [likeCount, setLikeCount] = useState(confession.likes?.[0]?.count || 0)
     const [showCommentInput, setShowCommentInput] = useState(false)
     const [comment, setComment] = useState("")
     const [sendingComment, setSendingComment] = useState(false)
-    // Initialize comments with latest first
     const [comments, setComments] = useState(confession.comments?.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [])
+    const [replyingTo, setReplyingTo] = useState<string | null>(null)
 
     const router = useRouter()
     const [showReportMenu, setShowReportMenu] = useState(false)
@@ -67,7 +69,7 @@ export function ConfessionCard({ confession, index }: ConfessionCardProps) {
         if (!comment.trim()) return
         setSendingComment(true)
 
-        const res = await addComment(confession.id, comment)
+        const res = await addComment(confession.id, comment, replyingTo || undefined)
 
         if (res?.error) {
             toast.error("Erreur: " + res.error)
@@ -79,11 +81,14 @@ export function ConfessionCard({ confession, index }: ConfessionCardProps) {
                 id: Math.random().toString(), // temp id
                 content: comment,
                 created_at: new Date().toISOString(),
-                mask: { name: 'Moi' } // simplifying for optimistic
+                parent_id: replyingTo,
+                mask: { name: 'Moi' },
+                comment_votes: []
             }
             setComments([newComment, ...comments])
 
             setComment("")
+            setReplyingTo(null)
             // Keep input open to see the new comment
         }
         setSendingComment(false)
@@ -185,10 +190,11 @@ export function ConfessionCard({ confession, index }: ConfessionCardProps) {
                                 {/* Comment Input */}
                                 <div className="flex gap-2 items-end pt-2 border-t border-white/5">
                                     <Textarea
-                                        placeholder="Votre conseil bienveillant..."
+                                        id={`comment-input-${index}`}
+                                        placeholder={replyingTo ? "Votre réponse..." : "Votre conseil bienveillant..."}
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}
-                                        className="min-h-[60px] bg-background/50 text-sm"
+                                        className="min-h-[60px] bg-background/50 text-sm flex-1 resize-none focus-visible:ring-primary/50"
                                     />
                                     <Button size="icon" onClick={handleCommentSubmit} disabled={sendingComment || !comment.trim()}>
                                         <Send className="h-4 w-4" />
@@ -196,18 +202,41 @@ export function ConfessionCard({ confession, index }: ConfessionCardProps) {
                                 </div>
 
                                 {/* Comments List */}
-                                <div className="space-y-3 pl-2">
-                                    {comments.map((c) => (
-                                        <div key={c.id} className="flex gap-3 items-start pl-2">
-                                            <div className="h-8 w-8 rounded-full bg-secondary/30 flex items-center justify-center shrink-0 border border-white/5 mt-1">
-                                                <VenetianMask className="h-4 w-4 opacity-70" />
-                                            </div>
-                                            <div className="flex flex-col gap-1 bg-secondary/10 p-3 rounded-2xl rounded-tl-none border border-white/5 max-w-[85%]">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-semibold text-xs text-foreground/90">{c.mask?.name || "Anonyme"}</span>
-                                                    <span className="text-[10px] text-muted-foreground/60">{new Date(c.created_at).toLocaleDateString()}</span>
-                                                </div>
-                                                <p className="text-sm font-light text-foreground/90 leading-relaxed">{c.content}</p>
+                                <div className="space-y-4 pl-2">
+                                    {comments.filter(c => !c.parent_id).map((c) => (
+                                        <div key={c.id} className="space-y-2">
+                                            {/* Parent Comment */}
+                                            <CommentItem
+                                                comment={c}
+                                                currentUserId={currentUserId}
+                                                onReply={(id) => {
+                                                    setReplyingTo(id);
+                                                    const input = document.getElementById(`comment-input-${index}`);
+                                                    if (input) input.focus();
+                                                }}
+                                            />
+
+                                            {/* Replies */}
+                                            <div className="pl-8 space-y-2 border-l border-white/5 ml-2">
+                                                {comments.filter(reply => reply.parent_id === c.id)
+                                                    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+                                                    .map(reply => (
+                                                        <CommentItem
+                                                            key={reply.id}
+                                                            comment={reply}
+                                                            currentUserId={currentUserId}
+                                                            onReply={(id) => {
+                                                                setReplyingTo(id); // Reply to the reply's parent (or reply itself? simplified flat reply for now or 2-level)
+                                                                // Actually for this UI let's just set replyingTo the same as parent or original reply.
+                                                                // But simple constraint: Reply to Reply = parent ID.
+                                                                // Actually let's just allow generic replyingTo for now, visual nesting is 2 levels max usually for mobile.
+                                                                setReplyingTo(c.id); // Consolidate threads
+                                                                const input = document.getElementById(`comment-input-${index}`);
+                                                                if (input) input.focus();
+                                                            }}
+                                                            isReply
+                                                        />
+                                                    ))}
                                             </div>
                                         </div>
                                     ))}
@@ -220,3 +249,76 @@ export function ConfessionCard({ confession, index }: ConfessionCardProps) {
         </motion.div>
     )
 }
+
+function CommentItem({ comment, onReply, currentUserId, isReply = false }: { comment: any, onReply: (id: string) => void, currentUserId: string, isReply?: boolean }) {
+    const [votes, setVotes] = useState<any[]>(comment.comment_votes || [])
+
+    // Check if current user voted
+    const userVote = votes.find((v: any) => v.user_id === currentUserId);
+    const hasLiked = userVote?.vote === true;
+    const hasDisliked = userVote?.vote === false;
+
+    // Calc score
+    const likes = votes.filter((v: any) => v.vote === true).length;
+    const dislikes = votes.filter((v: any) => v.vote === false).length;
+
+    const handleVote = async (vote: boolean) => {
+        // Optimistic Update
+        let newVotes = [...votes];
+        const existingVoteIndex = newVotes.findIndex((v: any) => v.user_id === currentUserId);
+
+        if (existingVoteIndex !== -1) {
+            if (newVotes[existingVoteIndex].vote === vote) {
+                // Toggle off (remove)
+                newVotes.splice(existingVoteIndex, 1);
+            } else {
+                // Change vote
+                newVotes[existingVoteIndex].vote = vote;
+            }
+        } else {
+            // New vote
+            newVotes.push({ user_id: currentUserId, vote });
+        }
+        setVotes(newVotes);
+
+        // Server action
+        await toggleCommentVote(comment.id, vote);
+    }
+
+    return (
+        <div className="flex gap-3 items-start">
+            <div className={cn("rounded-full bg-secondary/30 flex items-center justify-center shrink-0 border border-white/5 mt-1", isReply ? "h-6 w-6" : "h-8 w-8")}>
+                <VenetianMask className={cn("opacity-70", isReply ? "h-3 w-3" : "h-4 w-4")} />
+            </div>
+            <div className="flex flex-col gap-1 flex-1">
+                <div className="bg-secondary/10 p-3 rounded-2xl rounded-tl-none border border-white/5">
+                    <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-xs text-foreground/90">{comment.mask?.name || "Anonyme"}</span>
+                        <span className="text-[10px] text-muted-foreground/60">{new Date(comment.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-sm font-light text-foreground/90 leading-relaxed">{comment.content}</p>
+                </div>
+
+                {/* Actions Line */}
+                <div className="flex items-center gap-4 px-2">
+                    <button
+                        onClick={() => handleVote(true)}
+                        className={cn("flex items-center gap-1 text-[10px] transition-colors", hasLiked ? "text-green-400 font-bold" : "text-muted-foreground hover:text-green-400")}
+                    >
+                        <ThumbsUp className={cn("h-3 w-3", hasLiked && "fill-current")} /> {likes > 0 && likes}
+                    </button>
+                    <button
+                        onClick={() => handleVote(false)}
+                        className={cn("flex items-center gap-1 text-[10px] transition-colors", hasDisliked ? "text-red-400 font-bold" : "text-muted-foreground hover:text-red-400")}
+                    >
+                        <ThumbsDown className={cn("h-3 w-3", hasDisliked && "fill-current")} /> {dislikes > 0 && dislikes}
+                    </button>
+                    <button onClick={() => onReply(comment.id)} className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors font-medium">
+                        <Reply className="h-3 w-3" /> Répondre
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
+}
+

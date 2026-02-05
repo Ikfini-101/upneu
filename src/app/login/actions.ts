@@ -1,7 +1,9 @@
 'use server'
 
 import { createClient } from "@/lib/supabase/server";
+
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 export async function signInWithPhone(phone: string) {
     const supabase = await createClient();
@@ -20,9 +22,10 @@ export async function signInWithPhone(phone: string) {
     return { success: true };
 }
 
-export async function signInWithProvider(provider: 'google' | 'facebook' | 'apple') {
+export async function signInWithProvider(provider: 'google' | 'facebook' | 'apple', redirectBase?: string) {
     const supabase = await createClient();
-    const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`;
+    const origin = redirectBase || (await headers()).get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const redirectUrl = `${origin}/auth/callback`;
 
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -42,11 +45,12 @@ export async function signInWithProvider(provider: 'google' | 'facebook' | 'appl
 
 export async function signInWithEmail(email: string) {
     const supabase = await createClient();
+    const origin = (await headers()).get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
             // Check if email link redirect works, usually just Magic Link
-            emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
+            emailRedirectTo: `${origin}/auth/callback`,
         }
     });
 

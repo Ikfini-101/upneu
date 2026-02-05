@@ -6,8 +6,10 @@ export async function GET(request: Request) {
     const code = searchParams.get("code");
     const next = searchParams.get("next") ?? "/feed";
 
-    // Use proper base URL (localhost or from env)
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // Use X-Forwarded-Host if available (Cloudflare), otherwise fall back to Host or request.url
+    const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
+    const protocol = request.headers.get('x-forwarded-proto') || 'http';
+    const baseUrl = host ? `${protocol}://${host}` : new URL(request.url).origin;
 
     if (code) {
         const supabase = await createClient();

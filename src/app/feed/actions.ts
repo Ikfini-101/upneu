@@ -18,9 +18,14 @@ export type Confession = {
         id: string;
         content: string;
         created_at: string;
+        parent_id: string | null;
         mask: {
             name: string;
         } | null;
+        comment_votes: {
+            user_id: string;
+            vote: boolean;
+        }[];
     }[];
     likes: {
         count: number;
@@ -77,8 +82,13 @@ export async function getFeedConfessions() {
                 id,
                 content,
                 created_at,
+                parent_id,
                 mask: masks(
                     name
+                ),
+                comment_votes(
+                    user_id,
+                    vote
                 )
             ),
             likes(count)
@@ -86,7 +96,7 @@ export async function getFeedConfessions() {
         .order('created_at', { ascending: false });
 
     if (error) {
-        console.error("Error fetching feed:", error);
+        console.error("Error fetching feed:", JSON.stringify(error, null, 2));
         return [];
     }
 

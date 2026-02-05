@@ -47,7 +47,7 @@ export async function toggleLike(confessionId: string) {
 
 // --- COMMENTS (CONSEILS) ---
 
-export async function addComment(confessionId: string, content: string) {
+export async function addComment(confessionId: string, content: string, parentId?: string) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { error: "Non connecté" };
@@ -65,6 +65,7 @@ export async function addComment(confessionId: string, content: string) {
         user_id: user.id,
         mask_id: mask.id,
         confession_id: confessionId,
+        parent_id: parentId || null,
         content
     });
 
@@ -110,6 +111,42 @@ export async function reportConfession(confessionId: string, reason: string = "S
         // Ignore schema errors for MVP
     }
 
+    return { success: true };
+}
+
+// --- COMMENT VOTES ---
+
+export async function toggleCommentVote(commentId: string, vote: boolean) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "Non connecté" };
+
+    // Check existing vote
+    const { data: existingVote } = await supabase
+        .from('comment_votes')
+        .select('id, vote')
+        .eq('user_id', user.id)
+        .eq('comment_id', commentId)
+        .single();
+
+    if (existingVote) {
+        if (existingVote.vote === vote) {
+            // Toggle off (remove vote)
+            await supabase.from('comment_votes').delete().eq('id', existingVote.id);
+        } else {
+            // Change vote
+            await supabase.from('comment_votes').update({ vote }).eq('id', existingVote.id);
+        }
+    } else {
+        // New vote
+        await supabase.from('comment_votes').insert({
+            user_id: user.id,
+            comment_id: commentId,
+            vote
+        });
+    }
+
+    revalidatePath('/feed');
     return { success: true };
 }
 

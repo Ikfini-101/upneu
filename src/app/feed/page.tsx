@@ -25,7 +25,7 @@ export default async function FeedPage() {
     const confessions = await getFeedConfessions();
 
     return (
-        <div className="min-h-screen bg-background relative overflow-hidden">
+        <div className="bg-background relative">
             {/* Background Elements */}
             <div className="fixed top-0 left-0 w-full h-[300px] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
 
@@ -48,7 +48,7 @@ export default async function FeedPage() {
                         </div>
                     ) : (
                         confessions.map((confession, index) => (
-                            <ConfessionCard key={confession.id} confession={confession} index={index} />
+                            <ConfessionCard key={confession.id} confession={confession} index={index} currentUserId={user.id} />
                         ))
                     )}
                 </section>

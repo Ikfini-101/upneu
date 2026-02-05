@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className="dark">
       <body className={cn(outfit.className, "bg-background text-foreground antialiased min-h-screen")}>
-        <main className="flex flex-col min-h-screen relative overflow-hidden pb-20">
+        <main className="flex flex-col min-h-screen relative pb-20">
           {/* Background Glow Effect */}
           <div className="fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background pointer-events-none" />
           {/* Navigation is handled inside specific pages or here if global. 

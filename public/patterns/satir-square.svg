@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+  <!-- Geometric square with star motif - inspired by Satir pagne -->
+  <!-- Outer square frame -->
+  <rect x="5" y="5" width="50" height="50" fill="none" stroke="rgba(245,245,220,0.12)" stroke-width="1.5"/>
+  
+  <!-- Inner decorative border -->
+  <rect x="10" y="10" width="40" height="40" fill="none" stroke="rgba(245,245,220,0.08)" stroke-width="1"/>
+  
+  <!-- Star/cross motif in center -->
+  <path d="M 30 18 L 32 26 L 40 28 L 32 30 L 30 38 L 28 30 L 20 28 L 28 26 Z" 
+        fill="rgba(245,245,220,0.15)" 
+        stroke="rgba(245,245,220,0.2)" 
+        stroke-width="0.5"/>
+  
+  <!-- Corner dots (traditional detail) -->
+  <circle cx="15" cy="15" r="1.5" fill="rgba(245,245,220,0.1)"/>
+  <circle cx="45" cy="15" r="1.5" fill="rgba(245,245,220,0.1)"/>
+  <circle cx="15" cy="45" r="1.5" fill="rgba(245,245,220,0.1)"/>
+  <circle cx="45" cy="45" r="1.5" fill="rgba(245,245,220,0.1)"/>
+</svg>

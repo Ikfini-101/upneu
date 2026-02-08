@@ -87,33 +87,6 @@ export async function addComment(confessionId: string, content: string, parentId
     return { success: true };
 }
 
-export async function reportConfession(confessionId: string, reason: string = "Signalement utilisateur") {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { error: "Non connecté" };
-
-    // Insert into reports table (assuming it exists, or will need creation)
-    // For MVP, if table is missing, this might fail, so we wrap in try/catch or just return success mocked
-    try {
-        const { error } = await supabase.from('reports').insert({
-            reporter_id: user.id,
-            confession_id: confessionId,
-            reason: reason,
-            status: 'pending'
-        });
-
-        if (error) {
-            console.error("Report error", error);
-            // Fallback: If table missing, just log and return success to user so UI works
-            return { success: true, warning: "Signalement enregistré (log)" };
-        }
-    } catch (e) {
-        // Ignore schema errors for MVP
-    }
-
-    return { success: true };
-}
-
 // --- COMMENT VOTES ---
 
 export async function toggleCommentVote(commentId: string, vote: boolean) {
@@ -193,3 +166,5 @@ export async function submitVote(confessionId: string, approved: boolean) {
 
     return { success: true };
 }
+
+// --- REPORTS & MODERATION ---

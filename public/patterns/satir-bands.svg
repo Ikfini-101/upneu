@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="6" viewBox="0 0 100 6">
+  <!-- Horizontal bands pattern - inspired by Satir pagne stripes -->
+  <line x1="0" y1="2" x2="100" y2="2" stroke="rgba(245,245,220,0.08)" stroke-width="2"/>
+  <line x1="0" y1="4" x2="100" y2="4" stroke="rgba(245,245,220,0.04)" stroke-width="1"/>
+</svg>

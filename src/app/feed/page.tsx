@@ -1,6 +1,7 @@
 import { getFeedConfessions } from "./actions";
 import { ConfessionCard } from "@/components/confessions/ConfessionCard";
-import { ConfessionComposer } from "@/components/confessions/ConfessionComposer";
+import { SatirEmptyState } from "@/components/satir";
+
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -42,10 +43,10 @@ export default async function FeedPage() {
 
                 <section className="space-y-6">
                     {confessions.length === 0 ? (
-                        <div className="text-center py-20 opacity-50">
-                            <p>Aucune confession pour le moment.</p>
-                            <p className="text-sm">Soyez le premier à parler.</p>
-                        </div>
+                        <SatirEmptyState
+                            message="Aucune confession pour le moment"
+                            submessage="Soyez le premier à partager"
+                        />
                     ) : (
                         confessions.map((confession, index) => (
                             <ConfessionCard key={confession.id} confession={confession} index={index} currentUserId={user.id} />
@@ -53,8 +54,6 @@ export default async function FeedPage() {
                     )}
                 </section>
             </main>
-
-            <ConfessionComposer />
         </div>
     );
 }

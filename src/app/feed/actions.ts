@@ -12,7 +12,7 @@ export type Confession = {
         sex: 'H' | 'F';
         age: number;
         city: string;
-
+        karma: number; // Added karma
     } | null;
     comments: {
         id: string;
@@ -21,6 +21,7 @@ export type Confession = {
         parent_id: string | null;
         mask: {
             name: string;
+            karma: number; // Added karma
         } | null;
         comment_votes: {
             user_id: string;
@@ -76,7 +77,8 @@ export async function getFeedConfessions() {
                 name,
                 sex,
                 age,
-                city
+                city,
+                karma
             ),
             comments(
                 id,
@@ -84,7 +86,8 @@ export async function getFeedConfessions() {
                 created_at,
                 parent_id,
                 mask: masks(
-                    name
+                    name,
+                    karma
                 ),
                 comment_votes(
                     user_id,
@@ -93,6 +96,7 @@ export async function getFeedConfessions() {
             ),
             likes(count)
         `)
+        .eq('moderation_status', 'active') // Only show active (non-moderated) content
         .order('created_at', { ascending: false });
 
     if (error) {

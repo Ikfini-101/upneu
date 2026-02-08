@@ -119,3 +119,68 @@ create policy "Users can create masks" on masks for insert with check ( auth.uid
 
 -- Interactions: Similar logic...
 -- (Add specific policies as needed for privacy)
+
+-- KARMA SYSTEM (Added Phase 3)
+ALTER TABLE masks ADD COLUMN IF NOT EXISTS karma INTEGER DEFAULT 0;
+
+CREATE OR REPLACE FUNCTION update_karma()
+RETURNS TRIGGER AS $$
+DECLARE
+    target_mask_id uuid;
+    points_change integer := 0;
+BEGIN
+    -- CAS 1 : Nouveau commentaire (+2 points)
+    IF (TG_TABLE_NAME = 'comments' AND TG_OP = 'INSERT') THEN
+         UPDATE masks SET karma = karma + 2 WHERE id = NEW.mask_id;
+         RETURN NEW;
+    END IF;
+
+    -- CAS 2 : Vote sur un commentaire
+    IF (TG_TABLE_NAME = 'comment_votes') THEN
+        SELECT mask_id INTO target_mask_id FROM comments WHERE id = COALESCE(NEW.comment_id, OLD.comment_id);
+        
+        IF (TG_OP = 'INSERT') THEN
+            points_change := CASE WHEN NEW.vote = true THEN 10 ELSE -5 END;
+        ELSIF (TG_OP = 'DELETE') THEN
+            points_change := CASE WHEN OLD.vote = true THEN -10 ELSE 5 END;
+        ELSIF (TG_OP = 'UPDATE' AND NEW.vote IS DISTINCT FROM OLD.vote) THEN
+            points_change := CASE WHEN NEW.vote = true THEN 15 ELSE -15 END;
+        END IF;
+
+        IF target_mask_id IS NOT NULL THEN
+            UPDATE masks SET karma = karma + points_change WHERE id = target_mask_id;
+        END IF;
+        
+        RETURN NEW;
+    END IF;
+
+    -- CAS 3 : Like sur une Confession (+5 points)
+    IF (TG_TABLE_NAME = 'likes') THEN
+        SELECT mask_id INTO target_mask_id FROM confessions WHERE id = COALESCE(NEW.confession_id, OLD.confession_id);
+
+        IF (TG_OP = 'INSERT') THEN
+            points_change := 5;
+        ELSIF (TG_OP = 'DELETE') THEN
+            points_change := -5;
+        END IF;
+
+        IF target_mask_id IS NOT NULL THEN
+            UPDATE masks SET karma = karma + points_change WHERE id = target_mask_id;
+        END IF;
+        
+        RETURN NEW;
+    END IF;
+
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Triggers
+DROP TRIGGER IF EXISTS on_comment_posted ON comments;
+CREATE TRIGGER on_comment_posted AFTER INSERT ON comments FOR EACH ROW EXECUTE FUNCTION update_karma();
+
+DROP TRIGGER IF EXISTS on_comment_vote ON comment_votes;
+CREATE TRIGGER on_comment_vote AFTER INSERT OR UPDATE OR DELETE ON comment_votes FOR EACH ROW EXECUTE FUNCTION update_karma();
+
+DROP TRIGGER IF EXISTS on_confession_like ON likes;
+CREATE TRIGGER on_confession_like AFTER INSERT OR DELETE ON likes FOR EACH ROW EXECUTE FUNCTION update_karma();

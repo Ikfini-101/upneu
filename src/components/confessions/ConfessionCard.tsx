@@ -5,13 +5,14 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { VenetianMask, Heart, MessageCircle, MoreHorizontal, Send, Mail } from "lucide-react"
+import { VenetianMask, Heart, MessageCircle, MoreHorizontal, Send, Flag } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import type { Confession } from "@/app/feed/actions"
 import { toggleLike, addComment, toggleCommentVote } from "@/app/interactions/actions"
 import { toast } from "sonner"
 import { ThumbsUp, ThumbsDown, Reply } from "lucide-react"
+import { getRank } from "@/lib/karma"
 
 interface ConfessionCardProps {
     confession: Confession;
@@ -32,7 +33,7 @@ export function ConfessionCard({ confession, index, currentUserId }: ConfessionC
     const [showReportMenu, setShowReportMenu] = useState(false)
 
     const handleReport = async () => {
-        const { reportConfession } = await import("@/app/interactions/actions");
+        const { reportConfession } = await import("@/app/interactions/moderation");
         if (confirm("Voulez-vous vraiment signaler ce contenu comme inapproprié ?")) {
             await reportConfession(confession.id)
             toast.success("Contenu signalé. Merci de votre vigilance.")
@@ -40,22 +41,7 @@ export function ConfessionCard({ confession, index, currentUserId }: ConfessionC
         }
     }
 
-    const handleStartChat = async () => {
-        if (!confession.user_id) return
 
-        try {
-            const { startConversation } = await import("@/app/messaging/actions")
-            const res = await startConversation(confession.user_id)
-            if (res.conversationId) {
-                router.push(`/messages/${res.conversationId}`)
-            } else if (res.error) {
-                toast.error(res.error)
-            }
-        } catch (e) {
-            console.error(e)
-            toast.error("Erreur lors de l'ouverture du chat")
-        }
-    }
 
     const handleLike = async () => {
         // Optimistic UI
@@ -82,7 +68,7 @@ export function ConfessionCard({ confession, index, currentUserId }: ConfessionC
                 content: comment,
                 created_at: new Date().toISOString(),
                 parent_id: replyingTo,
-                mask: { name: 'Moi' },
+                mask: { name: 'Moi', karma: 0 },
                 comment_votes: []
             }
             setComments([newComment, ...comments])
@@ -107,8 +93,19 @@ export function ConfessionCard({ confession, index, currentUserId }: ConfessionC
                             <VenetianMask className="h-5 w-5 text-primary" />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-sm font-semibold text-foreground/90">
+                            <span className="text-sm font-semibold text-foreground/90 flex items-center gap-2">
                                 {confession.mask?.name || "Anonyme"}
+                                {confession.mask?.karma !== undefined && (
+                                    (() => {
+                                        const rank = getRank(confession.mask!.karma);
+                                        return (
+                                            <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full border flex items-center gap-1", rank.color, rank.bg)}>
+                                                {rank.icon}
+                                                {rank.label}
+                                            </span>
+                                        );
+                                    })()
+                                )}
                             </span>
                             <span className="text-xs text-muted-foreground flex gap-2">
                                 <span>{confession.mask?.sex === 'H' ? 'Homme' : 'Femme'}</span>
@@ -149,11 +146,11 @@ export function ConfessionCard({ confession, index, currentUserId }: ConfessionC
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="hover:text-primary hover:bg-primary/10 gap-2"
-                                onClick={handleStartChat}
+                                className="text-red-500 hover:text-red-400 hover:bg-red-500/10 gap-2"
+                                onClick={handleReport}
                             >
-                                <Mail className="h-4 w-4" />
-                                <span className="text-xs hidden sm:inline">MP</span>
+                                <Flag className="h-4 w-4" />
+                                <span className="text-xs hidden sm:inline">Signaler</span>
                             </Button>
                         </div>
                         <div className="relative">
@@ -293,7 +290,20 @@ function CommentItem({ comment, onReply, currentUserId, isReply = false }: { com
             <div className="flex flex-col gap-1 flex-1">
                 <div className="bg-secondary/10 p-3 rounded-2xl rounded-tl-none border border-white/5">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-xs text-foreground/90">{comment.mask?.name || "Anonyme"}</span>
+                        <span className="font-semibold text-xs text-foreground/90 flex items-center gap-1.5">
+                            {comment.mask?.name || "Anonyme"}
+                            {comment.mask?.karma !== undefined && (
+                                (() => {
+                                    const rank = getRank(comment.mask!.karma);
+                                    return (
+                                        <span className={cn("text-[8px] px-1 py-0.5 rounded-full border flex items-center gap-0.5", rank.color, rank.bg)}>
+                                            {rank.icon}
+                                            {rank.label}
+                                        </span>
+                                    );
+                                })()
+                            )}
+                        </span>
                         <span className="text-[10px] text-muted-foreground/60">{new Date(comment.created_at).toLocaleDateString()}</span>
                     </div>
                     <p className="text-sm font-light text-foreground/90 leading-relaxed">{comment.content}</p>

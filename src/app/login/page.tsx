@@ -174,35 +174,7 @@ export default function LoginPage() {
                             )}
                         </Button>
 
-                        <Button
-                            variant="outline"
-                            className="w-full h-14 bg-[#1877F2] hover:bg-[#1877F2]/90 text-white border-none font-semibold text-lg flex items-center gap-3 shadow-lg hover:scale-105 transition-transform"
-                            onClick={async () => {
-                                setLoading(true);
-                                try {
-                                    const res = await signInWithProvider('facebook');
-                                    if (res?.error) {
-                                        alert("Erreur Facebook: " + res.error);
-                                    } else if (res?.url) {
-                                        window.location.href = res.url;
-                                    }
-                                } catch (e) {
-                                    alert("Erreur inattendue: " + e);
-                                } finally {
-                                    setLoading(false);
-                                }
-                            }}
-                            disabled={loading}
-                        >
-                            {loading ? <Loader2 className="animate-spin text-white" /> : (
-                                <>
-                                    <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24">
-                                        <path d="M9.198 21.5h4v-8.01h3.604l.396-3.98h-4V7.5a1 1 0 0 1 1-1h3v-4h-3a5 5 0 0 0-5 5v2.01h-2l-.396 3.98h2.396v8.01Z" />
-                                    </svg>
-                                    Continuer avec Facebook
-                                </>
-                            )}
-                        </Button>
+
                     </div>
 
                     {/* Divider */}

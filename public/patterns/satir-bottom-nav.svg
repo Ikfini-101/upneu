@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="80" viewBox="0 0 400 80" preserveAspectRatio="none">
+  <!-- Satir Protective Band Pattern - Inspired by authentic Senegalese pagne -->
+  
+  <!-- Background -->
+  <rect width="400" height="80" fill="#0A0E27"/>
+  
+  <!-- Top decorative bands (cream/indigo alternating) -->
+  <rect x="0" y="0" width="400" height="3" fill="#F5F5DC" opacity="0.25"/>
+  <rect x="0" y="4" width="400" height="2" fill="#1A237E" opacity="0.3"/>
+  <rect x="0" y="7" width="400" height="3" fill="#F5F5DC" opacity="0.25"/>
+  
+  <!-- Geometric pattern border (inspired by pagne squares) -->
+  <!-- Small repeating squares along the top -->
+  <g opacity="0.2">
+    <rect x="10" y="12" width="8" height="8" fill="none" stroke="#F5F5DC" stroke-width="1"/>
+    <line x1="12" y1="14" x2="16" y2="18" stroke="#F5F5DC" stroke-width="0.5"/>
+    <line x1="16" y1="14" x2="12" y2="18" stroke="#F5F5DC" stroke-width="0.5"/>
+    
+    <rect x="30" y="12" width="8" height="8" fill="none" stroke="#F5F5DC" stroke-width="1"/>
+    <line x1="32" y1="14" x2="36" y2="18" stroke="#F5F5DC" stroke-width="0.5"/>
+    <line x1="36" y1="14" x2="32" y2="18" stroke="#F5F5DC" stroke-width="0.5"/>
+    
+    <rect x="50" y="12" width="8" height="8" fill="none" stroke="#F5F5DC" stroke-width="1"/>
+    <line x1="52" y1="14" x2="56" y2="18" stroke="#F5F5DC" stroke-width="0.5"/>
+    <line x1="56" y1="14" x2="52" y2="18" stroke="#F5F5DC" stroke-width="0.5"/>
+    
+    <!-- Pattern repeats across -->
+    <use href="#square-pattern" x="60"/>
+    <use href="#square-pattern" x="120"/>
+    <use href="#square-pattern" x="180"/>
+    <use href="#square-pattern" x="240"/>
+    <use href="#square-pattern" x="300"/>
+    <use href="#square-pattern" x="360"/>
+  </g>
+  
+  <!-- Subtle weave texture overlay -->
+  <pattern id="weave" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+    <rect width="1" height="1" x="0" y="0" fill="#F5F5DC" opacity="0.03"/>
+    <rect width="1" height="1" x="2" y="2" fill="#F5F5DC" opacity="0.03"/>
+  </pattern>
+  <rect width="400" height="80" fill="url(#weave)"/>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4">
+  <!-- Very subtle weave/fabric texture - inspired by Satir pagne -->
+  <rect width="1" height="1" x="0" y="0" fill="rgba(245,245,220,0.015)"/>
+  <rect width="1" height="1" x="2" y="2" fill="rgba(245,245,220,0.015)"/>
+  <rect width="1" height="1" x="1" y="1" fill="rgba(26,35,126,0.01)"/>
+  <rect width="1" height="1" x="3" y="3" fill="rgba(26,35,126,0.01)"/>
+</svg>

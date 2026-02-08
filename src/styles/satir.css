@@ -1,0 +1,158 @@
+/**
+ * Satir Pattern System - CSS Utilities
+ * Cultural patterns from Senegalese "Satir" pagne
+ */
+
+/* ============================================
+   BACKGROUND PATTERNS
+   ============================================ */
+
+/* Subtle weave texture for app-wide background */
+.satir-bg-weave {
+  background-image: url('/patterns/satir-weave.svg');
+  background-repeat: repeat;
+  background-size: 4px 4px;
+  background-position: 0 0;
+}
+
+/* Gradient overlay for depth */
+.satir-bg-gradient {
+  background: linear-gradient(180deg,
+      rgba(26, 35, 126, 0.02) 0%,
+      rgba(10, 14, 39, 0.03) 100%);
+}
+
+/* Combined weave + gradient */
+.satir-bg-full {
+  background-image:
+    linear-gradient(180deg,
+      rgba(26, 35, 126, 0.02) 0%,
+      rgba(10, 14, 39, 0.03) 100%),
+    url('/patterns/satir-weave.svg');
+  background-repeat: no-repeat, repeat;
+  background-size: 100% 100%, 4px 4px;
+}
+
+/* ============================================
+   DIVIDERS & SEPARATORS
+   ============================================ */
+
+.satir-divider-bands {
+  background-image: url('/patterns/satir-bands.svg');
+  background-repeat: repeat-x;
+  background-size: 100px 6px;
+  background-position: center;
+}
+
+/* ============================================
+   EMPTY STATES & DECORATIVE
+   ============================================ */
+
+.satir-square-pattern {
+  background-image: url('/patterns/satir-square.svg');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
+/* ============================================
+   OVERLAY EFFECTS
+   ============================================ */
+
+/* For modals/composers - very subtle */
+.satir-overlay {
+  position: relative;
+}
+
+.satir-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/patterns/satir-weave.svg');
+  background-repeat: repeat;
+  background-size: 6px 6px;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes satir-breathe {
+
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(0.98);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.satir-animate-breathe {
+  animation: satir-breathe 4s ease-in-out infinite;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+/* Reduce pattern density on small screens for performance */
+@media (max-width: 640px) {
+  .satir-bg-weave {
+    background-size: 6px 6px;
+  }
+
+  .satir-overlay::before {
+    background-size: 8px 8px;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .satir-bg-gradient {
+    background: linear-gradient(180deg,
+        rgba(26, 35, 126, 0.04) 0%,
+        rgba(10, 14, 39, 0.06) 100%);
+  }
+}
+
+/* ============================================
+   COLOR VARIABLES
+   ============================================ */
+
+:root {
+  --satir-indigo-deep: #1a237e;
+  --satir-indigo-dark: #0d1642;
+  --satir-indigo-light: #3949ab;
+  --satir-cream: #f5f5dc;
+  --satir-cream-dark: #e8e8d0;
+}
+
+/* ============================================
+   BOTTOM NAV - PROTECTIVE BORDER
+   ============================================ */
+
+.satir-bottom-nav-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.satir-bottom-nav-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(245, 245, 220, 0.3) 20%,
+      rgba(245, 245, 220, 0.3) 80%,
+      transparent 100%);
+}

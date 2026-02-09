@@ -1,4 +1,4 @@
-import { getUserConfessions, getUserProfile } from "./actions";
+import { getUserConfessions, getUserProfile, getCurrentUserId } from "./actions";
 import { ConfessionCard } from "@/components/confessions/ConfessionCard";
 import { VenetianMask, MapPin, Calendar, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -11,6 +11,7 @@ export const dynamic = 'force-dynamic';
 export default async function ProfilePage() {
     const confessions = await getUserConfessions();
     const mask = await getUserProfile();
+    const currentUserId = await getCurrentUserId();
 
     if (!mask) {
         return (
@@ -65,7 +66,7 @@ export default async function ProfilePage() {
                     </div>
                 ) : (
                     confessions.map((confession, index) => (
-                        <ConfessionCard key={confession.id} confession={confession} index={index} />
+                        <ConfessionCard key={confession.id} confession={confession} index={index} currentUserId={currentUserId} />
                     ))
                 )}
             </section>

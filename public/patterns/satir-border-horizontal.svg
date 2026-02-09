@@ -1,0 +1,24 @@
+<svg width="100" height="6" viewBox="0 0 100 6" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+  <defs>
+    <!-- Motif de répétition pour la bande -->
+    <pattern id="satir-border-pattern" x="0" y="0" width="20" height="6" patternUnits="userSpaceOnUse">
+      <!-- Fond indigo -->
+      <rect x="0" y="0" width="20" height="6" fill="#0e1729"/>
+      
+      <!-- Bande crème/beige -->
+      <rect x="0" y="1" width="20" height="2" fill="#dfd5ca" opacity="0.9"/>
+      
+      <!-- Petits carrés indigo sur la bande -->
+      <rect x="2" y="1.5" width="1" height="1" fill="#172a45" opacity="0.7"/>
+      <rect x="7" y="1.5" width="1" height="1" fill="#172a45" opacity="0.7"/>
+      <rect x="12" y="1.5" width="1" height="1" fill="#172a45" opacity="0.7"/>
+      <rect x="17" y="1.5" width="1" height="1" fill="#172a45" opacity="0.7"/>
+      
+      <!-- Ligne bronze accent -->
+      <line x1="0" y1="4" x2="20" y2="4" stroke="#c69a5d" stroke-width="0.5" opacity="0.6"/>
+    </pattern>
+  </defs>
+  
+  <!-- Application du motif -->
+  <rect width="100" height="6" fill="url(#satir-border-pattern)"/>
+</svg>

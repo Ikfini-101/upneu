@@ -29,33 +29,55 @@
 
 @layer base {
   :root {
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
+    /* === FOUNDATIONS === */
+    --background: 213 55% 6%;
+    /* Indigo nuit profonde */
+    --foreground: 32 25% 94%;
+    /* Blanc cassé chaleureux */
 
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
+    /* === SURFACES === */
+    --card: 213 48% 10%;
+    /* Cards légèrement élevées */
+    --card-foreground: 32 25% 94%;
 
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 213 50% 8%;
+    /* Popovers + profonds */
+    --popover-foreground: 32 25% 94%;
 
-    --primary: 263 70% 50%;
-    --primary-foreground: 210 40% 98%;
+    /* === ACTIONS === */
+    --primary: 248 65% 62%;
+    /* Violet-indigo optimisé CTA */
+    --primary-foreground: 32 25% 98%;
+    /* Blanc pur sur primary */
 
-    --secondary: 217 32% 17%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 30 40% 22%;
+    /* Beige-bronze profond */
+    --secondary-foreground: 32 25% 94%;
 
-    --muted: 217 32% 17%;
-    --muted-foreground: 215 20% 65%;
+    /* === ACCENTS === */
+    --accent: 35 48% 52%;
+    /* Bronze chaleureux */
+    --accent-foreground: 213 55% 8%;
+    /* Indigo sur bronze */
 
-    --accent: 217 32% 17%;
-    --accent-foreground: 210 40% 98%;
+    /* === MUTED/DISABLED === */
+    --muted: 213 42% 14%;
+    /* Indigo désaturé */
+    --muted-foreground: 30 15% 65%;
+    /* Beige-gris pour meta */
 
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 210 40% 98%;
+    /* === SEMANTIC === */
+    --destructive: 0 65% 45%;
+    /* Rouge ajusté (moins agressif) */
+    --destructive-foreground: 32 25% 98%;
 
-    --border: 217 32% 17%;
-    --input: 217 32% 17%;
-    --ring: 263 70% 50%;
+    /* === BORDERS & INPUTS === */
+    --border: 213 45% 14%;
+    /* Bordures indigo subtiles */
+    --input: 213 45% 14%;
+    /* Inputs alignés */
+    --ring: 248 65% 62%;
+    /* Focus ring = primary */
 
     --radius: 0.75rem;
   }
@@ -68,5 +90,76 @@
 
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Sutura Border Effect - SVG Pattern Frame */
+  .sutura-border {
+    position: relative;
+    padding: 6px;
+    /* Espace pour le cadre */
+  }
+
+  /* Top Border */
+  .sutura-border::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background-image: url('/patterns/satir-border-horizontal.svg');
+    background-repeat: repeat-x;
+    background-size: auto 6px;
+    border-radius: 12px 12px 0 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* Bottom Border */
+  .sutura-border::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background-image: url('/patterns/satir-border-horizontal.svg');
+    background-repeat: repeat-x;
+    background-size: auto 6px;
+    border-radius: 0 0 12px 12px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* Left Border */
+  .sutura-border-left {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 0;
+    width: 6px;
+    background-image: url('/patterns/satir-border-vertical.svg');
+    background-repeat: repeat-y;
+    background-size: 6px auto;
+    z-index: 2;
+    pointer-events: none;
+    display: block !important;
+    /* Force display */
+  }
+
+  /* Right Border */
+  .sutura-border-right {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    right: 0;
+    width: 6px;
+    background-image: url('/patterns/satir-border-vertical.svg');
+    background-repeat: repeat-y;
+    background-size: 6px auto;
+    z-index: 2;
+    pointer-events: none;
+    display: block !important;
+    /* Force display */
   }
 }

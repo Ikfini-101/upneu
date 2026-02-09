@@ -8,11 +8,12 @@ export type Confession = {
     content: string;
     created_at: string;
     mask: {
+        id: string; // Added ID for Veiller feature
         name: string;
         sex: 'H' | 'F';
         age: number;
         city: string;
-        karma: number; // Added karma
+        karma: number;
     } | null;
     comments: {
         id: string;
@@ -21,7 +22,7 @@ export type Confession = {
         parent_id: string | null;
         mask: {
             name: string;
-            karma: number; // Added karma
+            karma: number;
         } | null;
         comment_votes: {
             user_id: string;
@@ -54,9 +55,26 @@ export async function createConfession(content: string) {
         mask_id: mask.id,
         content,
         status: 'pending' // Default status
-    });
+    }).select('id').single();
 
     if (error) return { error: error.message };
+
+    // --- NOTIFY FOLLOWERS (VEILLEURS) ---
+    const { data: veilleurs } = await supabase
+        .from('veilles')
+        .select('user_id')
+        .eq('mask_id', mask.id);
+
+    if (veilleurs && veilleurs.length > 0) {
+        const notifications = veilleurs.filter(v => v.user_id !== user.id).map(v => ({
+            user_id: v.user_id,
+            type: 'message',
+            content: `Le masque que vous veillez vient de poster une confession.`,
+            related_id: mask.id,
+            read: false
+        }));
+        if (notifications.length > 0) await supabase.from('notifications').insert(notifications);
+    }
 
     return { success: true };
 }
@@ -64,8 +82,6 @@ export async function createConfession(content: string) {
 export async function getFeedConfessions() {
     const supabase = await createClient();
 
-    // In a real scenario, we would filter by status='validated'
-    // For Dev Phase 3, we might fetch all or just pending for visibility
     const { data, error } = await supabase
         .from('confessions')
         .select(`
@@ -74,6 +90,7 @@ export async function getFeedConfessions() {
             content,
             created_at,
             mask: masks(
+                id,
                 name,
                 sex,
                 age,

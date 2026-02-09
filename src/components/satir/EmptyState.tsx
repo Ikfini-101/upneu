@@ -25,8 +25,7 @@ export function SatirEmptyState({
         },
         transition: {
             duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut"
+            repeat: Infinity
         }
     } : {};
 

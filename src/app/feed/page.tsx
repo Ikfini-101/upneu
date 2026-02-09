@@ -25,6 +25,14 @@ export default async function FeedPage() {
 
     const confessions = await getFeedConfessions();
 
+    // Get Follows (Veilles)
+    const { data: userVeilles } = await supabase
+        .from('veilles')
+        .select('mask_id')
+        .eq('user_id', user.id);
+
+    const followedMaskIds = new Set(userVeilles?.map(v => v.mask_id) || []);
+
     return (
         <div className="bg-background relative">
             {/* Background Elements */}
@@ -49,7 +57,17 @@ export default async function FeedPage() {
                         />
                     ) : (
                         confessions.map((confession, index) => (
-                            <ConfessionCard key={confession.id} confession={confession} index={index} currentUserId={user.id} />
+                            <ConfessionCard
+                                key={confession.id}
+                                confession={confession}
+                                index={index}
+                                currentUserId={user.id}
+                                isFollowed={confession.mask ? followedMaskIds.has(confession.mask.id) : false} // Need mask ID.
+                            // Type error potential here if mask definition in Confession type doesn't have ID.
+                            // I need to verify Confession type definition in components/actions.ts or infer it.
+                            // In feed/actions.ts, mask is defined as object { name, sex... }. ID missing?
+                            // I must check feed/actions.ts again to be reliable.
+                            />
                         ))
                     )}
                 </section>

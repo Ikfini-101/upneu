@@ -82,3 +82,9 @@ export async function deleteAccount() {
 
     return { success: true };
 }
+
+export async function getCurrentUserId() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.id || '';
+}

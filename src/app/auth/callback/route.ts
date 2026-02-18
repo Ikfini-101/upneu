@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
+    console.log("DEBUG: Auth Callback Hit", request.url);
     const { searchParams } = new URL(request.url);
     const code = searchParams.get("code");
     const next = searchParams.get("next") ?? "/feed";

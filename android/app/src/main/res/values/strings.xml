@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ANO - Libérez votre parole</string>
+    <string name="title_activity_main">ANO - Libérez votre parole</string>
+    <string name="package_name">com.ano.app</string>
+    <string name="custom_url_scheme">com.ano.app</string>
+</resources>

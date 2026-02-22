@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Notifications } from '@/components/notifications/Notifications';
+import { Settings } from 'lucide-react';
 
 export function Header() {
     return (
@@ -21,7 +22,10 @@ export function Header() {
                     </div>
                 </Link>
 
-                <div className="ml-auto">
+                <div className="ml-auto flex items-center gap-2">
+                    <Link href="/settings" className="p-2 text-muted-foreground hover:text-foreground transition-colors">
+                        <Settings className="h-5 w-5" />
+                    </Link>
                     <Notifications />
                 </div>
             </div>

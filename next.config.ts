@@ -4,9 +4,7 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   experimental: {
   },
-  server: {
-    allowedOrigins: ["localhost:3000", "barrier-policies-society-scholars.trycloudflare.com"],
-  },
+
   // Explicitly set root to avoid workspace warnings
   turbopack: {
     root: __dirname,

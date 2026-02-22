@@ -10,6 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Loader2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { Checkbox } from '@/components/ui/checkbox'
+import Link from 'next/link'
+
 // Schema for Step 1: Phone or Email
 const phoneSchema = z.object({
     phone: z.string().min(10, "Numéro invalide").regex(/^\+?[0-9\s]+$/, "Format invalide"),
@@ -35,6 +38,10 @@ export default function LoginPage() {
     const [error, setError] = useState<string | null>(null)
     const [emailSent, setEmailSent] = useState(false)
 
+    // Terms Acceptance State
+    const [termsAccepted, setTermsAccepted] = useState(false)
+    const [shakeTerms, setShakeTerms] = useState(false)
+
     // Phone Form
     const phoneForm = useForm<z.infer<typeof phoneSchema>>({
         resolver: zodResolver(phoneSchema),
@@ -53,7 +60,19 @@ export default function LoginPage() {
         defaultValues: { otp: '' },
     })
 
+    // Helper to check terms
+    const checkTerms = () => {
+        if (!termsAccepted) {
+            setShakeTerms(true)
+            setTimeout(() => setShakeTerms(false), 500)
+            return false
+        }
+        return true
+    }
+
     const onPhoneSubmit = async (data: z.infer<typeof phoneSchema>) => {
+        if (!checkTerms()) return;
+
         setLoading(true)
         setError(null)
         const formattedPhone = data.phone
@@ -69,6 +88,8 @@ export default function LoginPage() {
     }
 
     const onEmailSubmit = async (data: z.infer<typeof emailSchema>) => {
+        if (!checkTerms()) return;
+
         setLoading(true)
         setError(null)
         const res = await signInWithEmail(data.email)
@@ -93,6 +114,24 @@ export default function LoginPage() {
         setLoading(false)
     }
 
+    const handleSocialLogin = async (provider: 'google' | 'apple') => {
+        if (!checkTerms()) return;
+
+        setLoading(true);
+        try {
+            const res = await signInWithProvider(provider, window.location.origin);
+            if (res?.error) {
+                alert("Erreur " + provider + ": " + res.error);
+            } else if (res?.url) {
+                window.location.href = res.url;
+            }
+        } catch (e) {
+            alert("Erreur inattendue: " + e);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <div className="min-h-screen flex items-center justify-center p-4 bg-background overflow-hidden relative">
             {/* Ambient Background */}
@@ -109,26 +148,33 @@ export default function LoginPage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
 
+                    {/* Terms Checkbox */}
+                    <div className={cn("flex items-start space-x-2 p-4 rounded-lg bg-background/40 border border-white/5 transition-all duration-300", shakeTerms && "border-red-500/50 bg-red-500/10 animate-shake")}>
+                        <Checkbox
+                            id="terms"
+                            checked={termsAccepted}
+                            onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                            className="mt-1"
+                        />
+                        <div className="grid gap-1.5 leading-none">
+                            <label
+                                htmlFor="terms"
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                            >
+                                J'accepte les conditions
+                            </label>
+                            <p className="text-xs text-muted-foreground">
+                                En vous connectant, vous acceptez nos <Link href="/policy/terms" className="underline hover:text-primary">Conditions d'utilisation</Link> et notre <Link href="/policy/privacy" className="underline hover:text-primary">Politique de confidentialité</Link>.
+                            </p>
+                        </div>
+                    </div>
+
                     {/* Social Buttons - Prominent & Simple */}
                     <div className="space-y-4">
                         <Button
                             variant="outline"
-                            className="w-full h-14 bg-white hover:bg-white/90 text-black border-none font-semibold text-lg flex items-center gap-3 shadow-lg hover:scale-105 transition-transform"
-                            onClick={async () => {
-                                setLoading(true);
-                                try {
-                                    const res = await signInWithProvider('google', window.location.origin);
-                                    if (res?.error) {
-                                        alert("Erreur Google: " + res.error);
-                                    } else if (res?.url) {
-                                        window.location.href = res.url;
-                                    }
-                                } catch (e) {
-                                    alert("Erreur inattendue: " + e);
-                                } finally {
-                                    setLoading(false);
-                                }
-                            }}
+                            className="w-full h-14 bg-white hover:bg-white/90 text-black border-none font-semibold text-lg flex items-center gap-3 shadow-lg hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => handleSocialLogin('google')}
                             disabled={loading}
                         >
                             {loading ? <Loader2 className="animate-spin text-black" /> : (
@@ -146,22 +192,8 @@ export default function LoginPage() {
 
                         <Button
                             variant="outline"
-                            className="w-full h-14 bg-black hover:bg-black/80 text-white border-white/20 font-semibold text-lg flex items-center gap-3 shadow-lg hover:scale-105 transition-transform"
-                            onClick={async () => {
-                                setLoading(true);
-                                try {
-                                    const res = await signInWithProvider('apple');
-                                    if (res?.error) {
-                                        alert("Erreur Apple: " + res.error);
-                                    } else if (res?.url) {
-                                        window.location.href = res.url;
-                                    }
-                                } catch (e) {
-                                    alert("Erreur inattendue: " + e);
-                                } finally {
-                                    setLoading(false);
-                                }
-                            }}
+                            className="w-full h-14 bg-black hover:bg-black/80 text-white border-white/20 font-semibold text-lg flex items-center gap-3 shadow-lg hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => handleSocialLogin('apple')}
                             disabled={loading}
                         >
                             {loading ? <Loader2 className="animate-spin text-white" /> : (

@@ -8,7 +8,7 @@ import { Settings } from 'lucide-react';
 
 export function Header() {
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-background/80 backdrop-blur-xl">
+        <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-background/80 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
             <div className="flex h-16 items-center px-4 max-w-2xl mx-auto relative">
                 <Link href="/feed" className="flex items-center gap-3 transition-opacity hover:opacity-80">
                     <div className="relative h-12 w-12 overflow-hidden">

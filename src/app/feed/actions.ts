@@ -33,6 +33,7 @@ export type Confession = {
     likes: {
         count: number;
     }[];
+    user_has_liked?: boolean;
 };
 
 export async function createConfession(content: string, audio?: { url: string, duration: number }) {
@@ -85,6 +86,7 @@ export async function createConfession(content: string, audio?: { url: string, d
 
 export async function getFeedConfessions() {
     const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
     const { data, error } = await supabase
         .from('confessions')
@@ -128,5 +130,23 @@ export async function getFeedConfessions() {
         return [];
     }
 
-    return data as unknown as Confession[];
+    const confessions = data as unknown as Confession[];
+
+    if (user && confessions.length > 0) {
+        const confessionIds = confessions.map(c => c.id);
+        const { data: userLikes } = await supabase
+            .from('likes')
+            .select('confession_id')
+            .eq('user_id', user.id)
+            .in('confession_id', confessionIds);
+
+        const likedSet = new Set(userLikes?.map((l: any) => l.confession_id) || []);
+
+        return confessions.map(c => ({
+            ...c,
+            user_has_liked: likedSet.has(c.id)
+        }));
+    }
+
+    return confessions;
 }

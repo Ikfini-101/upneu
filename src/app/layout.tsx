@@ -12,6 +12,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   themeColor: "#020817",
+  viewportFit: "cover",
 };
 
 export const metadata: Metadata = {
@@ -41,7 +42,7 @@ export default function RootLayout({
           <AppLayout>
             <main className="flex flex-col min-h-screen relative pb-20">
               {/* Background Glow Effect */}
-              <div className="fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background pointer-events-none" />
+              <div className="fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background pointer-events-none transform-gpu" />
 
               {children}
             </main>

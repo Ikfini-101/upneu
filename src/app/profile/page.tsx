@@ -113,11 +113,6 @@ export default function ProfilePage() {
                     ))
                 )}
             </section>
-
-            <div className="pt-12 pb-8 border-t border-white/5">
-                <h3 className="text-red-500 font-semibold mb-4">Zone de danger</h3>
-                <DeleteAccountButton />
-            </div>
         </main>
     );
 }

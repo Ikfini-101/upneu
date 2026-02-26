@@ -6,6 +6,7 @@ import { Header } from './Header';
 import { BottomNav } from './BottomNav';
 import { ConfessionComposer } from '../confessions/ConfessionComposer';
 import { ComposerProvider } from '@/contexts/ComposerContext';
+import { FeedProvider } from '@/contexts/FeedContext';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -18,16 +19,18 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
     return (
         <ComposerProvider>
-            {!isHidden && <Header />}
+            <FeedProvider>
+                {!isHidden && <Header />}
 
-            {children}
+                {children}
 
-            {!isHidden && (
-                <>
-                    <ConfessionComposer />
-                    <BottomNav />
-                </>
-            )}
+                {!isHidden && (
+                    <>
+                        <ConfessionComposer />
+                        <BottomNav />
+                    </>
+                )}
+            </FeedProvider>
         </ComposerProvider>
     );
 }

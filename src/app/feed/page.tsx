@@ -1,21 +1,19 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { getFeedConfessions, Confession } from "./actions";
+import { useEffect } from "react";
 import { ConfessionCard } from "@/components/confessions/ConfessionCard";
 import { SatirEmptyState } from "@/components/satir";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useFeed } from "@/contexts/FeedContext";
 
 export default function FeedPage() {
     const { user, isLoading: authLoading } = useAuth();
     const router = useRouter();
     const supabase = createClient();
 
-    const [confessions, setConfessions] = useState<Confession[]>([]);
-    const [followedMaskIds, setFollowedMaskIds] = useState<Set<string>>(new Set());
-    const [loading, setLoading] = useState(true);
+    const { confessions, followedMaskIds, loading, scrollPosition, setScrollPosition } = useFeed();
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -34,26 +32,27 @@ export default function FeedPage() {
         }
     }, [user, authLoading, router, supabase]);
 
+    // Restore scroll position when data is available
     useEffect(() => {
-        const fetchFeed = async () => {
-            if (!user) return;
-            setLoading(true);
-            const data = await getFeedConfessions();
-            setConfessions(data);
+        if (!loading && confessions.length > 0) {
+            // Use setTimeout to ensure the browser paints the DOM first before attempting horizontal/vertical scroll
+            const timeoutId = setTimeout(() => {
+                window.scrollTo({ top: scrollPosition, behavior: 'instant' });
+            }, 0);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [loading, confessions.length, scrollPosition]);
 
-            const { data: userVeilles } = await supabase
-                .from('veilles')
-                .select('mask_id')
-                .eq('user_id', user.id);
-
-            setFollowedMaskIds(new Set(userVeilles?.map((v: any) => v.mask_id) || []));
-            setLoading(false);
+    // Track scroll position
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrollPosition(window.scrollY);
         };
 
-        if (user) {
-            fetchFeed();
-        }
-    }, [user, supabase]);
+        // Throttling could be added here, but passive: true helps
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [setScrollPosition]);
 
     if (authLoading || loading) {
         return <div className="flex h-screen items-center justify-center p-4">Chargement...</div>;

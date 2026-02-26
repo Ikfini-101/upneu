@@ -1,12 +1,9 @@
-'use server'
-
-import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/client";
 
 // --- LIKES ---
 
 export async function toggleLike(confessionId: string) {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { error: "Non connecté" };
 
@@ -41,14 +38,14 @@ export async function toggleLike(confessionId: string) {
         }
     }
 
-    revalidatePath('/feed');
+
     return { success: true };
 }
 
 // --- COMMENTS (CONSEILS) ---
 
 export async function addComment(confessionId: string, content: string, parentId?: string) {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { error: "Non connecté" };
 
@@ -134,14 +131,14 @@ export async function addComment(confessionId: string, content: string, parentId
         }
     }
 
-    revalidatePath('/feed');
+
     return { success: true };
 }
 
 // --- COMMENT VOTES ---
 
 export async function toggleCommentVote(commentId: string, vote: boolean) {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { error: "Non connecté" };
 
@@ -170,14 +167,14 @@ export async function toggleCommentVote(commentId: string, vote: boolean) {
         });
     }
 
-    revalidatePath('/feed');
+
     return { success: true };
 }
 
 // --- VALIDATION ---
 
 export async function getPendingConfessions() {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     // Get confessions that are pending AND that the user hasn't voted on yet
@@ -199,7 +196,7 @@ export async function getPendingConfessions() {
 }
 
 export async function submitVote(confessionId: string, approved: boolean) {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { error: "Non connecté" };
 
@@ -221,7 +218,7 @@ export async function submitVote(confessionId: string, approved: boolean) {
 // --- VEILLES (FOLLOWS) ---
 
 export async function toggleVeille(maskId: string) {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { success: false, error: "Non connecté" };
 

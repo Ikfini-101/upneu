@@ -1,10 +1,7 @@
-'use server'
-
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 
 export async function deleteAccount() {
-    const supabase = await createClient()
+    const supabase = createClient()
 
     const { error } = await supabase.rpc('delete_own_account')
 
@@ -14,13 +11,14 @@ export async function deleteAccount() {
     }
 
     // Sign out explicitly
+    // Sign out explicitly
     await supabase.auth.signOut()
 
-    redirect('/')
+    return { success: true }
 }
 
 export async function deleteData() {
-    const supabase = await createClient()
+    const supabase = createClient()
 
     const { error } = await supabase.rpc('wipe_user_content')
 

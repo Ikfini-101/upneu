@@ -151,9 +151,7 @@ export function AudioRecorder({ onAudioConfirmed }: AudioRecorderProps) {
     };
 
     const confirm = async () => {
-        console.log("Confirm button clicked");
         if (blurredBlob) {
-            console.log("Blurred blob exists, sending...", blurredBlob, duration);
             await onAudioConfirmed(blurredBlob, duration);
         } else {
             console.error("No blurred blob found!");
@@ -293,10 +291,9 @@ export function AudioRecorder({ onAudioConfirmed }: AudioRecorderProps) {
                             e.stopPropagation();
                             e.preventDefault();
                             if (blurredBlob) {
-                                alert(`CONFIRMATION: Envoi du blob (${blurredBlob.size} bytes)`);
                                 confirm();
                             } else {
-                                alert("ERREUR: Audio non disponible (Blob is null)");
+                                toast.error("Erreur : Audio non disponible");
                             }
                         }}
                         className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 flex-1 cursor-pointer z-[100] relative active:scale-95 transition-transform"

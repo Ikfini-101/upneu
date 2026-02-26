@@ -1,6 +1,4 @@
-'use server'
-
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
 
 export type Confession = {
     id: string;
@@ -35,10 +33,11 @@ export type Confession = {
     likes: {
         count: number;
     }[];
+    user_has_liked?: boolean;
 };
 
 export async function createConfession(content: string, audio?: { url: string, duration: number }) {
-    const supabase = await createClient();
+    const supabase = createClient();
 
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
@@ -72,7 +71,7 @@ export async function createConfession(content: string, audio?: { url: string, d
         .eq('mask_id', mask.id);
 
     if (veilleurs && veilleurs.length > 0) {
-        const notifications = veilleurs.filter(v => v.user_id !== user.id).map(v => ({
+        const notifications = veilleurs.filter((v: any) => v.user_id !== user.id).map((v: any) => ({
             user_id: v.user_id,
             type: 'message',
             content: `Le masque que vous veillez vient de poster une confession ${audio ? 'audio 🎙️' : ''}.`,
@@ -86,7 +85,8 @@ export async function createConfession(content: string, audio?: { url: string, d
 }
 
 export async function getFeedConfessions() {
-    const supabase = await createClient();
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
     const { data, error } = await supabase
         .from('confessions')
@@ -130,5 +130,23 @@ export async function getFeedConfessions() {
         return [];
     }
 
-    return data as unknown as Confession[];
+    const confessions = data as unknown as Confession[];
+
+    if (user && confessions.length > 0) {
+        const confessionIds = confessions.map(c => c.id);
+        const { data: userLikes } = await supabase
+            .from('likes')
+            .select('confession_id')
+            .eq('user_id', user.id)
+            .in('confession_id', confessionIds);
+
+        const likedSet = new Set(userLikes?.map((l: any) => l.confession_id) || []);
+
+        return confessions.map(c => ({
+            ...c,
+            user_has_liked: likedSet.has(c.id)
+        }));
+    }
+
+    return confessions;
 }

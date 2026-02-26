@@ -24,7 +24,7 @@ interface ConfessionCardProps {
 }
 
 export function ConfessionCard({ confession, index, currentUserId, isFollowed = false }: ConfessionCardProps) {
-    const [liked, setLiked] = useState(false)
+    const [liked, setLiked] = useState(confession.user_has_liked || false)
     const [likeCount, setLikeCount] = useState(confession.likes?.[0]?.count || 0)
     const [isExpanded, setIsExpanded] = useState(false)
     // following state removed - delegated to VeillerButton
@@ -93,7 +93,7 @@ export function ConfessionCard({ confession, index, currentUserId, isFollowed = 
             transition={{ duration: 0.5, delay: index * 0.1 }}
         >
             {/* Confession Card Content */}
-            <Card className="bg-card/40 backdrop-blur-md border-white/5 hover:border-primary/20 transition-colors duration-300 relative z-10 rounded-xl">
+            <Card className="bg-card/70 border-white/5 hover:border-primary/20 transition-colors duration-300 relative z-10 rounded-xl">
                 <CardHeader className="flex flex-row items-start justify-between pb-2 space-y-0">
                     <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 overflow-hidden relative">
@@ -223,7 +223,7 @@ export function ConfessionCard({ confession, index, currentUserId, isFollowed = 
                                         placeholder={replyingTo ? "Votre réponse..." : "Votre conseil bienveillant..."}
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}
-                                        className="min-h-[60px] bg-background/50 text-sm flex-1 resize-none focus-visible:ring-primary/50"
+                                        className="min-h-[60px] bg-background/50 text-[16px] flex-1 resize-none focus-visible:ring-primary/50"
                                     />
                                     <Button size="icon" onClick={handleCommentSubmit} disabled={sendingComment || !comment.trim()}>
                                         <Send className="h-4 w-4" />

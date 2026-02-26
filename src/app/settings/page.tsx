@@ -1,20 +1,22 @@
+'use client'
+
 import { DangerZone } from "@/components/settings/DangerZone"
-import { Header } from "@/components/layout/Header"
-import { BottomNav } from "@/components/layout/BottomNav"
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { createClient } from "@/lib/supabase/client"
+import { useRouter } from "next/navigation"
+import { LogOut } from "lucide-react"
 
-export default async function SettingsPage() {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+export default function SettingsPage() {
+    const router = useRouter()
+    const supabase = createClient()
 
-    if (!user) {
-        redirect('/login')
+    const handleLogout = async () => {
+        await supabase.auth.signOut()
+        router.replace('/login')
     }
 
     return (
         <div className="min-h-screen bg-background pb-20 md:pb-0">
-            <Header />
 
             <main className="container max-w-2xl mx-auto pt-24 px-4 space-y-8">
                 <div>
@@ -29,12 +31,19 @@ export default async function SettingsPage() {
                     {/* <Card> ... Notifications, Theme etc ... </Card> */}
 
                     <DangerZone />
+
+                    <div className="pt-8 border-t border-white/10">
+                        <Button
+                            variant="outline"
+                            className="w-full justify-start text-muted-foreground hover:text-foreground"
+                            onClick={handleLogout}
+                        >
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Se déconnecter
+                        </Button>
+                    </div>
                 </div>
             </main>
-
-            <div className="md:hidden">
-                <BottomNav />
-            </div>
         </div>
     )
 }

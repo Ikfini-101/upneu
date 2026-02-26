@@ -18,9 +18,6 @@ export default function Home() {
               Commencer
             </Button>
           </Link>
-          <Button variant="outline" className="w-full" size="lg">
-            En savoir plus
-          </Button>
         </div>
       </main>
     </div>

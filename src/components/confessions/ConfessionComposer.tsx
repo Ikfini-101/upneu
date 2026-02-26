@@ -6,8 +6,10 @@ import { X, Send, Mic, Type } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createConfession } from '@/app/feed/actions'
 import { useComposer } from '@/contexts/ComposerContext'
+import { useFeed } from '@/contexts/FeedContext'
 import { SimpleAudioRecorder } from '@/components/audio/SimpleAudioRecorder'
 import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 // import { v4 as uuidv4 } from 'uuid' // Removed
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -16,6 +18,8 @@ import { cn } from '@/lib/utils'
 
 export function ConfessionComposer() {
     const { isOpen, closeComposer } = useComposer()
+    const { refreshFeed } = useFeed()
+    const router = useRouter()
     // const [mode, setMode] = useState<'text' | 'audio'>('text') // Audio disabled for Beta
     const [content, setContent] = useState('')
     const [loading, setLoading] = useState(false)
@@ -41,7 +45,8 @@ export function ConfessionComposer() {
             setContent('');
             closeComposer();
             toast.success("Confession envoyée pour validation !");
-            window.location.reload();
+            refreshFeed();
+            router.replace('/feed');
         }
         setLoading(false);
     }

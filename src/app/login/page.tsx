@@ -153,7 +153,7 @@ export default function LoginPage() {
                         <Checkbox
                             id="terms"
                             checked={termsAccepted}
-                            onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                            onCheckedChange={(checked: boolean) => setTermsAccepted(checked as boolean)}
                             className="mt-1"
                         />
                         <div className="grid gap-1.5 leading-none">

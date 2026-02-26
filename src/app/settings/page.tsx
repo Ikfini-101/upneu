@@ -1,16 +1,10 @@
+'use client'
+
 import { DangerZone } from "@/components/settings/DangerZone"
 import { Header } from "@/components/layout/Header"
 import { BottomNav } from "@/components/layout/BottomNav"
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
 
-export default async function SettingsPage() {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-        redirect('/login')
-    }
+export default function SettingsPage() {
 
     return (
         <div className="min-h-screen bg-background pb-20 md:pb-0">

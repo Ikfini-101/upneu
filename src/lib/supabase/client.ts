@@ -3,40 +3,44 @@ import { Preferences } from '@capacitor/preferences'
 
 import { Capacitor } from '@capacitor/core'
 
+const memoryCache = new Map<string, string>();
+
 // Custom storage adapter for Capacitor Preferences
 const capacitorStorage = {
     getItem: async (key: string): Promise<string | null> => {
         if (typeof window === 'undefined') return null;
-        if (Capacitor.isNativePlatform()) {
-            try {
-                const { value } = await Preferences.get({ key })
-                return value
-            } catch (e) {
-                console.warn('Preferences get error:', e);
-                return null;
+        if (memoryCache.has(key)) return memoryCache.get(key) || null;
+
+        try {
+            const { value } = await Preferences.get({ key })
+            if (value) {
+                memoryCache.set(key, value);
+                return value;
             }
+        } catch (e) {
+            console.warn('Preferences get error:', e);
         }
-        return window.localStorage.getItem(key);
+
+        const fallback = window.localStorage.getItem(key);
+        if (fallback) memoryCache.set(key, fallback);
+        return fallback;
     },
     setItem: async (key: string, value: string): Promise<void> => {
         if (typeof window === 'undefined') return;
-        if (Capacitor.isNativePlatform()) {
-            try {
-                await Preferences.set({ key, value })
-            } catch (e) { console.warn('Preferences set error:', e); }
-        } else {
-            window.localStorage.setItem(key, value);
-        }
+        memoryCache.set(key, value);
+        try {
+            await Preferences.set({ key, value })
+        } catch (e) { console.warn('Preferences set error:', e); }
+        // Fallback or mirror
+        try { window.localStorage.setItem(key, value); } catch (e) { }
     },
     removeItem: async (key: string): Promise<void> => {
         if (typeof window === 'undefined') return;
-        if (Capacitor.isNativePlatform()) {
-            try {
-                await Preferences.remove({ key })
-            } catch (e) { console.warn('Preferences remove error:', e); }
-        } else {
-            window.localStorage.removeItem(key);
-        }
+        memoryCache.delete(key);
+        try {
+            await Preferences.remove({ key })
+        } catch (e) { console.warn('Preferences remove error:', e); }
+        try { window.localStorage.removeItem(key); } catch (e) { }
     },
 }
 

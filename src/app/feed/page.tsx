@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { ConfessionCard } from "@/components/confessions/ConfessionCard";
 import { SatirEmptyState } from "@/components/satir";
 import { createClient } from "@/lib/supabase/client";
@@ -43,15 +43,20 @@ export default function FeedPage() {
         }
     }, [loading, confessions.length, scrollPosition]);
 
+    const scrollPosRef = useRef(0);
+
     // Track scroll position
     useEffect(() => {
         const handleScroll = () => {
-            setScrollPosition(window.scrollY);
+            scrollPosRef.current = window.scrollY;
         };
 
-        // Throttling could be added here, but passive: true helps
         window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            // Only save position to context state when unmounting
+            setScrollPosition(scrollPosRef.current);
+        };
     }, [setScrollPosition]);
 
     if (authLoading || loading) {

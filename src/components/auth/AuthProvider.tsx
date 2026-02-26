@@ -99,6 +99,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // Handle initial auth redirect
                 if (!session && pathname && !publicRoutes.includes(pathname)) {
                     router.replace('/login')
+                } else if (session && pathname === '/') {
+                    router.replace('/feed')
                 }
             }
         })
@@ -113,6 +115,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                 if (!session && pathname && !publicRoutes.includes(pathname)) {
                     router.replace('/login')
+                } else if (session && pathname === '/') {
+                    router.replace('/feed')
                 }
             }
         })

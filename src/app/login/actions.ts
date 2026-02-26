@@ -1,12 +1,8 @@
-'use server'
-
-import { createClient } from "@/lib/supabase/server";
-
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
+import { createClient } from "@/lib/supabase/client";
+import { Capacitor } from '@capacitor/core';
 
 export async function signInWithPhone(phone: string) {
-    const supabase = await createClient();
+    const supabase = createClient();
 
     // Ensure E.164 format (dumb fix: add + if missing)
     const formattedPhone = phone.startsWith('+') ? phone : `+${phone.trim()}`;
@@ -23,9 +19,14 @@ export async function signInWithPhone(phone: string) {
 }
 
 export async function signInWithProvider(provider: 'google' | 'facebook' | 'apple', redirectBase?: string) {
-    const supabase = await createClient();
-    const origin = redirectBase || (await headers()).get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const redirectUrl = `${origin}/auth/callback`;
+    const supabase = createClient();
+    const origin = redirectBase || window.location.origin || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    let redirectUrl = `${origin}/feed`; // Redirect straight to feed or root, AuthProvider handles it
+
+    // If native iOS/Android, force the custom scheme for OAuth callback
+    if (Capacitor.isNativePlatform()) {
+        redirectUrl = 'com.upcorp.ano://feed';
+    }
 
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -44,13 +45,13 @@ export async function signInWithProvider(provider: 'google' | 'facebook' | 'appl
 }
 
 export async function signInWithEmail(email: string) {
-    const supabase = await createClient();
-    const origin = (await headers()).get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const supabase = createClient();
+    const origin = window.location.origin || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
             // Check if email link redirect works, usually just Magic Link
-            emailRedirectTo: `${origin}/auth/callback`,
+            emailRedirectTo: `${origin}/feed`,
         }
     });
 
@@ -62,7 +63,7 @@ export async function signInWithEmail(email: string) {
 }
 
 export async function verifyOtp(phone: string, token: string) {
-    const supabase = await createClient();
+    const supabase = createClient();
 
     // Verify the OTP
     const { data, error } = await supabase.auth.verifyOtp({
@@ -82,12 +83,9 @@ export async function verifyOtp(phone: string, token: string) {
         .eq('user_id', data.user?.id)
         .single();
 
-    // If we have an error other than "no rows found", handle it
-    // But for now, if no mask, we redirect to wizard
-
     if (!masks) {
-        redirect('/wizard');
+        return { redirect: '/wizard' };
     }
 
-    redirect('/feed');
+    return { redirect: '/feed' };
 }

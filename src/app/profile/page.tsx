@@ -1,17 +1,60 @@
+'use client';
+
+import { useEffect, useState } from "react";
 import { getUserConfessions, getUserProfile, getCurrentUserId } from "./actions";
 import { ConfessionCard } from "@/components/confessions/ConfessionCard";
 import { VenetianMask, MapPin, Calendar, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DeleteAccountButton } from "@/components/profile/DeleteAccountButton";
+import { Confession } from "../feed/actions";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useRouter } from "next/navigation";
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export default function ProfilePage() {
+    const { user, isLoading: authLoading } = useAuth();
+    const router = useRouter();
 
-export default async function ProfilePage() {
-    const confessions = await getUserConfessions();
-    const mask = await getUserProfile();
-    const currentUserId = await getCurrentUserId();
+    const [confessions, setConfessions] = useState<Confession[]>([]);
+    const [mask, setMask] = useState<any>(null);
+    const [currentUserId, setCurrentUserId] = useState<string>('');
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!authLoading && !user) {
+            router.replace('/login');
+        }
+    }, [user, authLoading, router]);
+
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            if (!user) return;
+            setLoading(true);
+
+            const [fetchedConfessions, fetchedMask, fetchedUserId] = await Promise.all([
+                getUserConfessions(),
+                getUserProfile(),
+                getCurrentUserId()
+            ]);
+
+            setConfessions(fetchedConfessions);
+            setMask(fetchedMask);
+            setCurrentUserId(fetchedUserId);
+            setLoading(false);
+        };
+
+        if (user) {
+            fetchProfileData();
+        }
+    }, [user]);
+
+    if (authLoading || loading) {
+        return <div className="flex justify-center items-center min-h-[60vh]">Chargement...</div>;
+    }
+
+    if (!user) {
+        return null;
+    }
 
     if (!mask) {
         return (

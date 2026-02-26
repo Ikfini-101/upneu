@@ -1,10 +1,8 @@
-'use server'
-
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
 import { Confession } from "../feed/actions";
 
 export async function getUserConfessions() {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) return [];
@@ -43,7 +41,7 @@ export async function getUserConfessions() {
 }
 
 export async function getUserProfile() {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) return null;
@@ -59,7 +57,7 @@ export async function getUserProfile() {
 }
 
 export async function deleteAccount() {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
@@ -84,7 +82,7 @@ export async function deleteAccount() {
 }
 
 export async function getCurrentUserId() {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     return user?.id || '';
 }

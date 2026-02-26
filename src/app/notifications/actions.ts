@@ -1,6 +1,4 @@
-'use server'
-
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
 
 export type Notification = {
     id: string;
@@ -12,7 +10,7 @@ export type Notification = {
 };
 
 export async function getNotifications() {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) return [];
@@ -33,7 +31,7 @@ export async function getNotifications() {
 }
 
 export async function getUnreadCount() {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) return 0;
@@ -53,7 +51,7 @@ export async function getUnreadCount() {
 }
 
 export async function markNotificationAsRead(id: string) {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) return { error: "Non connecté" };
@@ -69,7 +67,7 @@ export async function markNotificationAsRead(id: string) {
 }
 
 export async function markAllNotificationsAsRead() {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) return { error: "Non connecté" };

@@ -1,10 +1,7 @@
-'use server'
-
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 export async function checkPseudoAvailability(pseudo: string) {
-    const supabase = await createClient();
+    const supabase = createClient();
 
     const { data, error } = await supabase
         .from('masks')
@@ -27,7 +24,7 @@ export async function createMask(formData: {
     city: string;
     phone?: string; // Add optional phone
 }) {
-    const supabase = await createClient();
+    const supabase = createClient();
 
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();

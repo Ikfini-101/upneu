@@ -1,7 +1,4 @@
-'use server'
-
-import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 // ============================================
@@ -27,7 +24,7 @@ type ModerationStatus =
 // ============================================
 
 export async function reportConfession(confessionId: string) {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) return { error: "Non authentifié" };
@@ -68,7 +65,7 @@ export async function reportConfession(confessionId: string) {
     // 3. Apply moderation rules
     const moderationResult = await applyModerationRules(supabase, confessionId, nowMs);
 
-    revalidatePath('/feed');
+
     return { success: true, ...moderationResult };
 }
 

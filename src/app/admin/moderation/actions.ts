@@ -1,14 +1,11 @@
-'use server'
-
-import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/client";
 
 // ============================================
 // GET MODERATION QUEUE
 // ============================================
 
 export async function getModerationQueue(filter: 'all' | 'R1' | 'R2' | 'critical' = 'all') {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) return [];
@@ -50,7 +47,7 @@ export async function getModerationQueue(filter: 'all' | 'R1' | 'R2' | 'critical
 // ============================================
 
 export async function getModerationDetails(confessionId: string) {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) return null;
@@ -100,7 +97,7 @@ export async function getModerationDetails(confessionId: string) {
 // ============================================
 
 export async function restoreConfession(confessionId: string) {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) return { error: "Non authentifié" };
@@ -137,8 +134,7 @@ export async function restoreConfession(confessionId: string) {
             }
         });
 
-    revalidatePath('/admin/moderation');
-    revalidatePath('/feed');
+
 
     return { success: true };
 }
@@ -148,7 +144,7 @@ export async function restoreConfession(confessionId: string) {
 // ============================================
 
 export async function getModerationStats() {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) return null;
@@ -166,7 +162,7 @@ export async function getModerationStats() {
         auto_deleted_absolute_threshold: 0
     };
 
-    statsByStatus?.forEach(item => {
+    statsByStatus?.forEach((item: any) => {
         if (item.moderation_status in stats) {
             stats[item.moderation_status as keyof typeof stats]++;
         }

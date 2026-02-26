@@ -239,13 +239,32 @@ export async function toggleVeille(maskId: string) {
         if (error) return { success: false, error: error.message };
         return { success: true, isFollowing: false };
     } else {
-        // Follow
+        // Follow (Veiller)
         const { error } = await supabase.from('veilles').insert({
             user_id: user.id,
             mask_id: maskId
         });
 
         if (error) return { success: false, error: error.message };
+
+        // Notify Mask Owner
+        // 1. Get Mask Owner ID
+        const { data: mask } = await supabase
+            .from('masks')
+            .select('user_id, name')
+            .eq('id', maskId)
+            .single();
+
+        if (mask && mask.user_id !== user.id) {
+            // 2. Insert Notification
+            await supabase.from('notifications').insert({
+                user_id: mask.user_id,
+                type: 'message', // Using 'message' as generic type for system alerts
+                content: `Quelqu'un veille sur votre masque "${mask.name}" ! 👁️`,
+                related_id: maskId,
+                read: false
+            });
+        }
 
         return { success: true, isFollowing: true };
     }

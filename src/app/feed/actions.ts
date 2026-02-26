@@ -7,8 +7,11 @@ export type Confession = {
     user_id: string;
     content: string;
     created_at: string;
+    audio_url?: string | null;
+    audio_duration?: number | null;
+    confession_type: 'text' | 'audio';
     mask: {
-        id: string; // Added ID for Veiller feature
+        id: string;
         name: string;
         sex: 'H' | 'F';
         age: number;
@@ -34,7 +37,7 @@ export type Confession = {
     }[];
 };
 
-export async function createConfession(content: string) {
+export async function createConfession(content: string, audio?: { url: string, duration: number }) {
     const supabase = await createClient();
 
     // Get current user
@@ -54,7 +57,10 @@ export async function createConfession(content: string) {
         user_id: user.id,
         mask_id: mask.id,
         content,
-        status: 'pending' // Default status
+        status: 'pending', // Default status
+        audio_url: audio?.url || null,
+        audio_duration: audio?.duration || null,
+        confession_type: audio ? 'audio' : 'text'
     }).select('id').single();
 
     if (error) return { error: error.message };
@@ -69,7 +75,7 @@ export async function createConfession(content: string) {
         const notifications = veilleurs.filter(v => v.user_id !== user.id).map(v => ({
             user_id: v.user_id,
             type: 'message',
-            content: `Le masque que vous veillez vient de poster une confession.`,
+            content: `Le masque que vous veillez vient de poster une confession ${audio ? 'audio 🎙️' : ''}.`,
             related_id: mask.id,
             read: false
         }));
@@ -89,6 +95,9 @@ export async function getFeedConfessions() {
             user_id,
             content,
             created_at,
+            audio_url,
+            audio_duration,
+            confession_type,
             mask: masks(
                 id,
                 name,

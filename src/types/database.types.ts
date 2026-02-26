@@ -72,6 +72,9 @@ export interface Database {
                     content: string
                     status: 'pending' | 'validated' | 'rejected'
                     created_at: string
+                    audio_url: string | null
+                    audio_duration: number | null
+                    confession_type: 'text' | 'audio'
                 }
                 Insert: {
                     id?: string
@@ -80,6 +83,9 @@ export interface Database {
                     content: string
                     status?: 'pending' | 'validated' | 'rejected'
                     created_at?: string
+                    audio_url?: string | null
+                    audio_duration?: number | null
+                    confession_type?: 'text' | 'audio'
                 }
                 Update: {
                     id?: string
@@ -88,6 +94,9 @@ export interface Database {
                     content?: string
                     status?: 'pending' | 'validated' | 'rejected'
                     created_at?: string
+                    audio_url?: string | null
+                    audio_duration?: number | null
+                    confession_type?: 'text' | 'audio'
                 }
             }
             likes: {

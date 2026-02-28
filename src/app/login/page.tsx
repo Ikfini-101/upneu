@@ -164,7 +164,7 @@ export default function LoginPage() {
                                 J'accepte les conditions
                             </label>
                             <p className="text-xs text-muted-foreground">
-                                En vous connectant, vous acceptez nos <Link href="/policy/terms" className="underline hover:text-primary">Conditions d'utilisation</Link> et notre <Link href="/policy/privacy" className="underline hover:text-primary">Politique de confidentialité</Link>.
+                                En vous connectant, vous acceptez nos <a href="https://ano-confessions.com/terms.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">Conditions d'utilisation</a> et notre <a href="https://ano-confessions.com/privacy.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">Politique de confidentialité</a>.
                             </p>
                         </div>
                     </div>

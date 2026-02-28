@@ -42,3 +42,7 @@ next-env.d.ts
 
 # dev documentation (private)
 DevNotebook.md
+
+# Android Keystore Secrets
+*.jks
+keystore.properties
